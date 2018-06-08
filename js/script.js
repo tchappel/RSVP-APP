@@ -16,6 +16,9 @@ div.appendChild(filterLabel);
 mainDiv.insertBefore(div, ul);
 
 
+
+
+
 //Function that creates a list item for each invited person, with this HTML structure: 
 /*    
     <li>
@@ -27,22 +30,33 @@ mainDiv.insertBefore(div, ul);
 */
 
 const createListItem = (text) => {
+
+    /*Function that creates a new DOM Element, 
+    assigns it a property with some value, 
+    then return the new DOM Element; */ 
+    const create_new_DOM_element = (element_type, element_property, property_value) =>{
+    const element = document.createElement(element_type);
+    element[element_property] = property_value;
+    return element;
+    }
+
     const li = document.createElement('li');
-    const span = document.createElement('span')
-    span.textContent = text;
-    li.appendChild(span);
-    const label = document.createElement('label');
-    label.textContent = 'Confirmed';
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    label.appendChild(checkbox);
-    li.appendChild(label);
-    const editButton = document.createElement('button');
-    editButton.textContent = 'edit';
-    li.appendChild(editButton);
-    const removeButton = document.createElement('button');
-    removeButton.textContent = 'remove';
-    li.appendChild(removeButton);
+
+    /*Function that creates a new DOM Element, 
+    assigns it a property with some value,
+    appends the new DOM Element to the list item li, 
+    then return the new DOM Element; */ 
+    const append_to_li = (element_type, element_property, property_value) =>{
+        const element = create_new_DOM_element(element_type, element_property, property_value);
+        li.appendChild(element);
+        return element;
+    }    
+    
+    append_to_li('span', 'textContent', text);
+    append_to_li('label', 'textContent', 'Confirmed')
+        .appendChild(create_new_DOM_element('input', 'type', 'checkbox'));
+    append_to_li('button', 'textContent', 'edit');  
+    append_to_li('button', 'textContent', 'remove');    
     return li;
 }
 
@@ -73,16 +87,15 @@ ul.addEventListener('change', (e) => {
 });
 
 
-// DELETE or EDIT LIST ITEMS: Event Handler that listens for click on the list item remove, edit and save buttons;
+// DELETE or EDIT/SAVE LIST ITEMS: Event Handler that listens for click on the list item remove, edit and save buttons;
 
 ul.addEventListener('click', (e) =>{
 
     if (e.target.tagName == 'BUTTON'){
         const button = e.target;
         li = button.parentNode;
-        if(button.textContent == 'remove'){            
-            ul.removeChild(li);
-        } else if (button.textContent == 'edit'){
+        const remove_li = () => ul.removeChild(li);
+        const edit_name = () => {
             const span = li.firstElementChild;
             const newInput = document.createElement('input');
             newInput.type = 'text';
@@ -90,7 +103,8 @@ ul.addEventListener('click', (e) =>{
             li.insertBefore(newInput, span);
             li.removeChild(span);
             button.textContent = 'save';
-        } else if (button.textContent == 'save'){
+        }
+        const save_name = () => {
             const newInput = li.firstElementChild;
             const span = document.createElement('span');
             span.textContent = newInput.value;
@@ -98,8 +112,18 @@ ul.addEventListener('click', (e) =>{
             li.removeChild(newInput);
             button.textContent = 'edit';
         }
+        if(button.textContent == 'remove'){            
+            remove_li();
+        } else if (button.textContent == 'edit'){
+            edit_name();
+        } else if (button.textContent == 'save'){
+            save_name();
+        }
     }
 });
+
+
+// Event Handler that filters out invitees that are not confirmed, and sets their display property as "none";
 
 filterCheckbox.addEventListener('change', (e) => {
     let isChecked = e.target.checked;
